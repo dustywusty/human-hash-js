@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/dustywusty/humanhash/issues"
   },
-  "homepage": "https://github.com/dustywusty/humanhash#readme"
+  "homepage": "https://github.com/dustywusty/humanhash#readme",
+  "dependencies": {
+    "ramda": "^0.23.0"
+  }
 }
