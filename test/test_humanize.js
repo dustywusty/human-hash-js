@@ -6,7 +6,7 @@ var SAMPLE_WORDLIST = require('./sample_wordlist');
 describe('humanize', function () {
   it('should work with custom wordlist', function () {
     // Arrange
-    var options = {digest: [1, 2, 3, 255], wordlist: SAMPLE_WORDLIST};
+    var options = {digest: [1, 2, 3, 255], wordlist: [SAMPLE_WORDLIST]};
 
     // Act
     result = humanize(options);
