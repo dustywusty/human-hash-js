@@ -4,7 +4,13 @@
   "description": "Deterministic, human-readable names for UUIDs and hexadecimal digests.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "node --test test/test_*.js",
+    "test:coverage": "node --test --experimental-test-coverage test/test_*.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run lint && npm run format:check && npm test",
+    "prepack": "npm run check"
   },
   "repository": {
     "type": "git",
@@ -16,7 +22,16 @@
     "url": "https://github.com/dustywusty/human-hash-js/issues"
   },
   "homepage": "https://github.com/dustywusty/human-hash-js#readme",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "files": [
+    "index.js",
+    "lib/"
+  ],
   "devDependencies": {
-    "mocha": "^3.3.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "prettier": "^3.9.8"
   }
 }

@@ -1,5 +1,7 @@
 # human-hash-js
 
+[![CI](https://github.com/dustywusty/human-hash-js/actions/workflows/ci.yml/badge.svg)](https://github.com/dustywusty/human-hash-js/actions/workflows/ci.yml)
+
 **Give your IDs a name people can say out loud.**
 
 ```text
@@ -22,13 +24,13 @@ cd human-hash-js
 node examples/default.js
 ```
 
-The library uses Node.js built-ins and has no runtime dependencies.
+The library requires Node.js 22.13 or later. It uses Node.js built-ins and has no runtime dependencies.
 
 ```js
 const humanize = require('./');
 
 const name = humanize({
-  digest: 'd1db5b2a-5720-4a27-be1b-7893230850a6'
+  digest: 'd1db5b2a-5720-4a27-be1b-7893230850a6',
 });
 
 console.log(name); // georgia-cola-florida-july
@@ -48,8 +50,8 @@ const name = humanize({
     ['lucky', 'brave'],
     ['playful', 'sleepy'],
     ['calm', 'angry'],
-    ['hippopotamus', 'otter']
-  ]
+    ['hippopotamus', 'otter'],
+  ],
 });
 
 console.log(name); // lucky-sleepy-calm-otter
@@ -69,13 +71,13 @@ List sizes can differ between positions. List order matters: changes to entries 
 humanize({ digest, words, wordlist, separator });
 ```
 
-| Option | Default | Meaning |
-| --- | --- | --- |
-| `digest` | Required | Hex string, hyphenated UUID, `Buffer`, `Uint8Array`, or byte array |
-| `words` | `4` | Integer from 1 to 32 |
-| `wordlist` | One built-in list of 256 words | An array with one list, or one list per output word |
-| `separator` | `'-'` | Nonempty string between words |
-| `seperator` | None | Legacy alias. `separator` takes precedence. |
+| Option      | Default                        | Meaning                                                            |
+| ----------- | ------------------------------ | ------------------------------------------------------------------ |
+| `digest`    | Required                       | Hex string, hyphenated UUID, `Buffer`, `Uint8Array`, or byte array |
+| `words`     | `4`                            | Integer from 1 to 32                                               |
+| `wordlist`  | One built-in list of 256 words | An array with one list, or one list per output word                |
+| `separator` | `'-'`                          | Nonempty string between words                                      |
+| `seperator` | None                           | Legacy alias. `separator` takes precedence.                        |
 
 Hex input must contain complete byte pairs. UUID input must use the `8-4-4-4-12` hexadecimal format.
 UUID validation checks the format, not version-specific field semantics. Uppercase and lowercase hex produce the same name.
@@ -92,13 +94,13 @@ More output bits do not add randomness to a predictable input.
 
 The capacity is the product of the list sizes at each position. These figures assume distinct words and unambiguous separators.
 
-| Words | Entries per list | Possible names | Output bits |
-| ---: | ---: | ---: | ---: |
-| 4 | 256 | 4,294,967,296 | 32 |
-| 4 | 512 | 68,719,476,736 | 36 |
-| 4 | 2,048 | 17,592,186,044,416 | 44 |
-| 5 | 256 | 1,099,511,627,776 | 40 |
-| 8 | 256 | 18,446,744,073,709,551,616 | 64 |
+| Words | Entries per list |             Possible names | Output bits |
+| ----: | ---------------: | -------------------------: | ----------: |
+|     4 |              256 |              4,294,967,296 |          32 |
+|     4 |              512 |             68,719,476,736 |          36 |
+|     4 |            2,048 |         17,592,186,044,416 |          44 |
+|     5 |              256 |          1,099,511,627,776 |          40 |
+|     8 |              256 | 18,446,744,073,709,551,616 |          64 |
 
 Collisions can occur long before the name space fills. For four 256-entry lists, 10,000 names have about a 1.16% chance of at least one collision.
 At 77,000 names, that probability is about 50%. These estimates assume independent, uniformly distributed outputs.
@@ -117,7 +119,7 @@ A stored name can serve as a readable alias for a game UUID. The database enforc
 6. Resolve incoming names through the stored mapping.
 
 ```js
-const { randomBytes } = require('crypto');
+const { randomBytes } = require('node:crypto');
 const humanize = require('./');
 
 // Generate another candidate after a database uniqueness conflict.
@@ -144,19 +146,37 @@ If names exist without stored mappings, build those mappings with the old versio
 
 ## Development
 
-Install the test dependencies:
+Select Node.js 24 with your version manager. The `.nvmrc` file supplies this version for nvm.
+
+Install the development dependencies from the lockfile:
 
 ```sh
-npm install
+npm ci
 ```
 
-Run the tests:
+Run the local checks:
 
 ```sh
-npm test
+npm run check
 ```
+
+| Command                 | Purpose                                         |
+| ----------------------- | ----------------------------------------------- |
+| `npm test`              | Run tests with the built-in Node.js test runner |
+| `npm run test:coverage` | Run tests and show coverage                     |
+| `npm run lint`          | Check JavaScript with ESLint                    |
+| `npm run format:check`  | Check formatting with Prettier                  |
+| `npm run format`        | Apply formatting                                |
+| `npm pack --dry-run`    | Run checks and inspect the package contents     |
 
 Tests cover SHA-256 vectors, UUID normalization, malformed input, former XOR collisions, custom lists, and larger dictionaries.
+
+GitHub Actions runs lint, formatting, tests with coverage, and package checks for every pull request and push to `master`.
+The test matrix covers Node.js 22, 24, and 26. You can also start the workflow manually after it reaches `master`.
+Dependabot checks npm dependencies and GitHub Actions monthly.
+
+The published package includes the entry point, library files, README, and license. Development tools are not runtime dependencies.
+The `prepack` script runs local checks before package creation. This repository has no automatic publishing workflow.
 
 ## License
 
