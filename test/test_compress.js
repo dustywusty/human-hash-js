@@ -1,55 +1,19 @@
-var should = require('chai').should();
-var expect = require('chai').expect;
-var compress = require('../lib/compress');
+'use strict';
+const assert = require('assert');
+const compress = require('../lib/compress');
 
 describe('compress', function () {
-  it('should throw range error if provided too few bytes', function () {
-    // Arrange
-    var bytes = [1, 2, 3, 4, 5];
-    var words = 6;
-
-    // Act
-    var badCompress = function () {
-      compress(bytes, words);
-    }
-
-    // Assert
-    expect(badCompress).to.Throw(RangeError);
+  it('matches the SHA-256 abc test vector', function () {
+    assert.strictEqual(Buffer.from(compress([97, 98, 99], 32)).toString('hex'),
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+    assert.deepStrictEqual(compress([97, 98, 99], 4), [186, 120, 22, 191]);
   });
-
-  it('should work when length is equal to words', function () {
-    // Arrange
-    var bytes = [1, 2, 3, 4, 5];
-    var words = 5;
-
-    // Act
-    var result = compress(bytes, words);
-
-    // Assert
-      expect(result).to.deep.equal([1, 2, 3, 4, 5]);
+  it('rejects invalid output lengths', function () {
+    [0, -1, 1.5, NaN, Infinity, '4', undefined, 33].forEach(words => {
+      assert.throws(() => compress([1], words), RangeError);
+    });
   });
-
-  it('should work when length is multiple of words', function () {
-    // Arrange
-    var bytes = [1, 2, 2, 1, 2, 2];
-    var words = 3;
-
-    // Act
-    var result = compress(bytes, words);
-
-    // Assert
-      expect(result).to.deep.equal([3, 3, 0]);
- });
-
-  it('should work when length is not a multiple of words', function () {
-    // Arrange
-    var bytes = [1, 3, 2, 4, 2, 2, 3];
-    var words = 3;
-
-    // Act
-    var result = compress(bytes, words);
-
-    // Assert
-      expect(result).to.deep.equal([2, 6, 3]);
+  it('does not preserve the old XOR cancellation', function () {
+    assert.notDeepStrictEqual(compress([1, 2, 3, 4], 1), compress([0, 3, 3, 4], 1));
   });
 });
